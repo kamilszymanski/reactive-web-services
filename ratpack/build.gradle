@@ -1,0 +1,27 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath 'io.ratpack:ratpack-gradle:1.5.0'
+    }
+}
+
+apply plugin: 'io.ratpack.ratpack-groovy'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    compile ratpack.dependency('rx')
+    compile 'org.slf4j:slf4j-simple:1.7.25'
+}
+
+run {
+    systemProperties(['org.slf4j.simpleLogger.showDateTime': true, 'org.slf4j.simpleLogger.dateTimeFormat': 'HH:mm:ss:SSS'])
+}
