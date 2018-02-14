@@ -25,7 +25,7 @@ public class Document {
 
     public Document(int catalogNumber, String content) {
         this.catalogNumber = catalogNumber;
-        this.catalogNumber = catalogNumber;
+        this.content = content;
     }
 
     @Override

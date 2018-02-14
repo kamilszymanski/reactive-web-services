@@ -11,7 +11,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 class ApplicationTerminationProtector implements ApplicationRunner {
 
     @Override
-    public void run(ApplicationArguments applicationArguments) throws Exception {
+    public void run(ApplicationArguments applicationArguments) {
         sleepFor(5, MINUTES);
     }
 }

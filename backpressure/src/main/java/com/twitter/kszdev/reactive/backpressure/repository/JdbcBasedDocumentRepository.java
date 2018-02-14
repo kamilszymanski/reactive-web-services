@@ -31,7 +31,8 @@ class JdbcBasedDocumentRepository implements DocumentRepository {
             connection.setAutoCommit(false);
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT catalog_number, content FROM document");
-            return Flux.fromIterable(() -> toResultSetIterator(resultSet, connection));
+            return Flux.fromIterable(() -> toResultSetIterator(resultSet, connection))
+                    .doOnTerminate(() -> closeConnection(connection));
         } catch (SQLException e) {
             return Flux.error(e);
         }
@@ -41,22 +42,11 @@ class JdbcBasedDocumentRepository implements DocumentRepository {
         return new Iterator<Document>() {
             @Override
             public boolean hasNext() {
-                boolean nextElementExists = false;
-                try {
-                    nextElementExists = resultSet.next();
-                } catch (SQLException e) {
-                    LOG.error("Failed to check if next element exists in query result set", e);
+                boolean nextElementExists = hasNextElement(resultSet);
+                if (!nextElementExists) {
+                    closeConnection(connection);
                 }
-                if (nextElementExists) {
-                    return true;
-                } else {
-                    try {
-                        connection.close();
-                    } catch (SQLException e) {
-                        LOG.error("Failed to close DB connection", e);
-                    }
-                    return false;
-                }
+                return nextElementExists;
             }
 
             @Override
@@ -67,7 +57,24 @@ class JdbcBasedDocumentRepository implements DocumentRepository {
                     throw new IllegalStateException("Failed to get new element from query result set", e);
                 }
             }
+
+            private boolean hasNextElement(ResultSet resultSet) {
+                try {
+                    return resultSet.next();
+                } catch (SQLException e) {
+                    LOG.error("Failed to check if next element exists in query result set", e);
+                    return false;
+                }
+            }
         };
+    }
+
+    private void closeConnection(Connection connection) {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            LOG.error("Failed to close DB connection", e);
+        }
     }
 
 }
