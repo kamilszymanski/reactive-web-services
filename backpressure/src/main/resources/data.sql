@@ -1,4 +1,4 @@
-INSERT INTO Document (catalog_number, content) VALUES
+INSERT INTO document (catalog_number, content) VALUES
   (1, '1a5aa6df-dc1a-42d4-8d9a-95a8ba9b11f3'),
   (2, 'bf5304ca-99c7-4196-947f-eeb32bd80a27'),
   (3, 'fc995d4a-3930-45c9-8896-f8bc60b8aef0'),

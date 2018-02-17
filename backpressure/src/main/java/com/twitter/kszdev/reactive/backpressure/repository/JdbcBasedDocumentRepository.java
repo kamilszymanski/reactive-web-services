@@ -10,6 +10,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 
@@ -21,8 +22,11 @@ class JdbcBasedDocumentRepository implements DocumentRepository {
 
     private final DataSource dataSource;
 
-    JdbcBasedDocumentRepository(DataSource dataSource) {
+    private final int fetchSize;
+
+    JdbcBasedDocumentRepository(DataSource dataSource, @Value("${jdbc.fetchSize}") int fetchSize) {
         this.dataSource = dataSource;
+        this.fetchSize = fetchSize;
     }
 
     public Flux<Document> findAll() {
@@ -30,6 +34,7 @@ class JdbcBasedDocumentRepository implements DocumentRepository {
             Connection connection = dataSource.getConnection();
             connection.setAutoCommit(false);
             Statement statement = connection.createStatement();
+            statement.setFetchSize(fetchSize);  // it's just a hint, your DB driver may ignore it
             ResultSet resultSet = statement.executeQuery("SELECT catalog_number, content FROM document");
             return Flux.fromIterable(() -> toResultSetIterator(resultSet, connection))
                     .doOnTerminate(() -> closeConnection(connection));
