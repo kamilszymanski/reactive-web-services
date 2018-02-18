@@ -35,6 +35,7 @@ class JdbcBasedDocumentRepository implements DocumentRepository {
             connection.setAutoCommit(false);
             Statement statement = connection.createStatement();
             statement.setFetchSize(fetchSize);  // it's just a hint, your DB driver may ignore it
+            LOG.debug("Querying document store with fetchSize={} hint", fetchSize);
             ResultSet resultSet = statement.executeQuery("SELECT catalog_number, content FROM document");
             return Flux.fromIterable(() -> toResultSetIterator(resultSet, connection))
                     .doOnTerminate(() -> closeConnection(connection));
